@@ -199,6 +199,8 @@ cmake -S . -B build_arm64 -G Ninja \
 
 cmake --build build_arm64 --target klogg --parallel
 macdeployqt build_arm64/output/klogg.app -always-overwrite
+python3 packaging/osx/fix_bundle_paths.py build_arm64/output/klogg.app
+python3 scripts/check_macos_bundle_dependencies.py build_arm64/output/klogg.app
 ```
 
 For a local unsigned/ad-hoc signed DMG, copy the deployed app to a temporary staging directory without extended attributes, sign it, and create an image:
