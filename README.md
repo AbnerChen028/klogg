@@ -129,6 +129,9 @@ Package for Mac can be installed from Homebrew
 
 [ ![homebrew cask](https://img.shields.io/homebrew/cask/v/klogg?style=flat)](https://formulae.brew.sh/cask/klogg)
 
+Apple Silicon test builds for this fork are published on the fork release page.
+The `klogg-24.11.0-arm64-local.dmg` asset is an arm64 build for M-series Macs.
+
 #### Linux
 It is recommended to use klogg package from distribution-specific [repositories](https://repology.org/project/klogg/versions).
 

@@ -121,6 +121,14 @@ cpmaddpackage(
   EXCLUDE_FROM_ALL
   YES
 )
+if(KF5Archive_ADDED)
+  foreach(_karchive_source kar.cpp karchive.cpp krcc.cpp)
+    file(READ "${KF5Archive_SOURCE_DIR}/karchive/src/${_karchive_source}" _karchive_text)
+    string(REPLACE ".arg(mode)" ".arg(mode.toInt())" _karchive_text "${_karchive_text}")
+    string(REPLACE ".arg(d->mode)" ".arg(d->mode.toInt())" _karchive_text "${_karchive_text}")
+    file(WRITE "${KF5Archive_SOURCE_DIR}/karchive/src/${_karchive_source}" "${_karchive_text}")
+  endforeach()
+endif()
 if(NOT KF5Archive_ADDED)
   find_package(KF5Archive)
   add_library(klogg_karchive INTERFACE)
@@ -414,5 +422,4 @@ foreach(target ${klogg_cpm_targets})
     set_property(TARGET ${target} PROPERTY INTERFACE_SYSTEM_INCLUDE_DIRECTORIES ${${target}_include_dirs})
   endif()
 endforeach()
-
 

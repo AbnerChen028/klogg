@@ -56,7 +56,7 @@ void openFileByHandle( QFile* file )
     }
 #endif
     if ( !openedByHandle ) {
-        file->open( QIODevice::ReadOnly );
+        static_cast<void>( file->open( QIODevice::ReadOnly ) );
     }
     LOG_INFO << "QFile opened";
 }

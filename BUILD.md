@@ -179,6 +179,45 @@ cmake --build .
 
 Binaries are placed into `build_root/output`.
 
+### Building an Apple Silicon package
+
+On Apple Silicon Macs, the project can be built as a native arm64 Qt 6 app with Homebrew dependencies:
+
+```bash
+brew install cmake ninja qt boost ragel
+
+cmake -S . -B build_arm64 -G Ninja \
+  -DCMAKE_POLICY_VERSION_MINIMUM=3.5 \
+  -DWARNINGS_AS_ERRORS=OFF \
+  -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+  -DCMAKE_OSX_ARCHITECTURES=arm64 \
+  -DKLOGG_BUILD_TESTS=OFF \
+  -DKLOGG_USE_SENTRY=OFF \
+  -DKLOGG_GENERIC_CPU=ON \
+  -DKLOGG_OSX_DEPLOYMENT_TARGET=14.0 \
+  -DCMAKE_PREFIX_PATH="/opt/homebrew/opt/qt;/opt/homebrew/opt/qtbase;/opt/homebrew/opt/qt5compat;/opt/homebrew/opt/qttools;/opt/homebrew/opt/qttranslations"
+
+cmake --build build_arm64 --target klogg --parallel
+macdeployqt build_arm64/output/klogg.app -always-overwrite
+```
+
+For a local unsigned/ad-hoc signed DMG, copy the deployed app to a temporary staging directory without extended attributes, sign it, and create an image:
+
+```bash
+STAGE=/tmp/klogg-arm64-stage
+APP="$STAGE/klogg.app"
+DMG=/tmp/klogg-24.11.0-arm64-local.dmg
+
+rm -rf "$STAGE" "$DMG"
+mkdir -p "$STAGE"
+COPYFILE_DISABLE=1 ditto --norsrc --noextattr build_arm64/output/klogg.app "$APP"
+xattr -cr "$APP" || true
+find "$APP" -name _CodeSignature -type d -prune -exec rm -rf {} +
+codesign --force --deep --sign - "$APP"
+codesign --verify --deep --strict --verbose=2 "$APP"
+hdiutil create -volname "klogg arm64" -srcfolder "$STAGE" -ov -format UDZO "$DMG"
+```
+
 By default, klogg will rely on cmake to figure out target MacOS version. Usually it uses build host version.
 To override default cmake value pass an option `-DKLOGG_OSX_DEPLOYMENT_TARGET=<target>` to cmake during configuration step,
 `<target>` is one of `10.14`, `10.15`, `11`, `12`. Klogg's traget must be greater or equal to target used by Qt libraries.
